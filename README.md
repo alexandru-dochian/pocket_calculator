@@ -1,1 +1,2 @@
-# pocket_calculator
+# Implementation of pocket calculator using plain javascript.
+

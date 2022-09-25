@@ -3,6 +3,7 @@
 <html>
   <head>
     <title>Pocket Calculator</title>
+    <meta charset="UTF-8" />
     <link rel="stylesheet" href="style.css" />
     <script src="index.js"></script>
   </head>
@@ -12,39 +13,39 @@
         <div id="screen"></div>
         <div id="keypad">
           <!-- ROW 1 -->
-          <div class="key backspace">&larr;</div>
-          <div class="key clear">C</div>
-          <div class="key open">(</div>
-          <div class="key close">)</div>
-          <div class="key operator">/</div>
+          <div class="key control" id="backspace">&larr;</div>
+          <div class="key control" id="clear">C</div>
+          <div class="key open" id="open">(</div>
+          <div class="key close" id="close">)</div>
+          <div class="key operator" id="division">/</div>
 
           <!-- ROW 2 -->
-          <div class="key function">sin</div>
-          <div class="key number">7</div>
-          <div class="key number">8</div>
-          <div class="key number">9</div>
-          <div class="key operator">*</div>
+          <div class="key function" id="sin">sin</div>
+          <div class="key number" id="7">7</div>
+          <div class="key number" id="8">8</div>
+          <div class="key number" id="9">9</div>
+          <div class="key operator" id="multiplication">*</div>
 
           <!-- ROW 3 -->
-          <div class="key function">cos</div>
-          <div class="key number">4</div>
-          <div class="key number">5</div>
-          <div class="key number">6</div>
-          <div class="key operator">-</div>
+          <div class="key function" id="cos">cos</div>
+          <div class="key number" id="4">4</div>
+          <div class="key number" id="5">5</div>
+          <div class="key number" id="6">6</div>
+          <div class="key operator" id="subtraction">-</div>
 
           <!-- ROW 4 -->
-          <div class="key function">tg</div>
-          <div class="key number">1</div>
-          <div class="key number">2</div>
-          <div class="key number">3</div>
-          <div class="key operator">+</div>
+          <div class="key function" id="tg">tg</div>
+          <div class="key number" id="1">1</div>
+          <div class="key number" id="2">2</div>
+          <div class="key number" id="3">3</div>
+          <div class="key operator" id="addition">+</div>
 
           <!-- ROW 5 -->
-          <div class="key function">ctg</div>
-          <div class="key constant">&pi;</div>
-          <div class="key number">0</div>
-          <div class="key decimalPoint">.</div>
-          <div class="key equal" id="equal">=</div>
+          <div class="key function" id="ctg">ctg</div>
+          <div class="key constant" id="pi">&#x213F;</div>
+          <div class="key number" id="0">0</div>
+          <div class="key decimalPoint" id="decimalPoint">.</div>
+          <div class="key control" id="equal">=</div>
         </div>
       </div>
       <div id="history"></div>

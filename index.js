@@ -1,3 +1,39 @@
+class Config {
+  static KEY_CLASS = {
+    CONTROL: "control",
+    CONSTANT: "constant",
+    NUMBER: "number",
+    FUNCTION: "function",
+    OPERATOR: "operator",
+    DECIMAL_POINT: "decimalPoint",
+    OPEN: "open",
+    CLOSE: "close",
+  };
+
+  static CONSTANTS = {
+    pi: Math.PI,
+  };
+
+  static FUNCTIONS = {
+    sin: (x) => Math.sin(x),
+    cos: (x) => Math.cos(x),
+    tg: (x) => Math.tan(x),
+    ctg: (x) => 1 / Math.tan(x),
+  };
+
+  static OPERATORS = {
+    addition: (x, y) => x + y,
+    subtraction: (x, y) => x - y,
+    multiplication: (x, y) => x * y,
+    division: (x, y) => {
+      if (y == 0) {
+        throw Error("Division by 0");
+      }
+      return parseFloat(x / y);
+    },
+  };
+}
+
 class Calculator {
   constructor() {
     // javascript state
@@ -9,7 +45,7 @@ class Calculator {
     // DOM
     this.dom = {
       calculatorScreenContent: document.getElementById("screen"),
-      calculatorScreenContent: document.getElementById("screen"),
+      history: document.getElementById("history"),
     };
 
     // Set listeners
@@ -22,16 +58,13 @@ class Calculator {
 
   handleKeyEvent = (e) => {
     const keyType = e.target.className.split(" ")[1];
+    const id = e.target.id;
     const content = e.target.innerText;
 
-    if (keyType == "clear") {
-      this.handleClearScreen();
-    } else if (keyType == "backspace") {
-      this.handleBackSpace();
-    } else if (keyType == "equal") {
-      this.handleEqual();
+    if (keyType == Config.KEY_CLASS.CONTROL) {
+      this.handleControlKey(id);
     } else {
-      this.state.expression.push({ keyType, content });
+      this.state.expression.push({ keyType, content, id });
     }
     this.updateDOM();
   };
@@ -43,7 +76,29 @@ class Calculator {
 
   fromStateToDom = () => {
     const { expression } = this.state;
-    return expression.map((item) => item["content"]).join("");
+    return expression
+      .map((item) => {
+        if (item["keyType"] == Config.KEY_CLASS.FUNCTION) {
+          return item["content"] + "(";
+        } else {
+          return item["content"];
+        }
+      })
+      .join("");
+  };
+
+  handleControlKey = (keyIdentifier) => {
+    if (keyIdentifier == "clear") {
+      this.handleClearScreen();
+    } else if (keyIdentifier == "backspace") {
+      this.handleBackSpace();
+    } else if (keyIdentifier == "equal") {
+      this.handleEqual();
+    } else {
+      throw new Error(
+        `Invalid keyIdentifier=[${keyIdentifier}] found in a key of control class!`
+      );
+    }
   };
 
   handleClearScreen = () => {
@@ -57,20 +112,13 @@ class Calculator {
   handleEqual = () => {
     const { expression } = this.state;
     const result = new Evaluator(expression).evaluate();
-    this.state.expression = [{ keyType: "number", content: result }];
+    this.state.expression = [
+      { keyType: Config.KEY_CLASS.NUMBER, content: result },
+    ];
   };
 }
 
 class Evaluator {
-  static TYPES = {
-    NUMBER: "number",
-    FUNCTION: "function",
-    OPERATOR: "operator",
-    DECIMAL_POINT: "decimalPoint",
-    OPEN: "open",
-    CLOSE: "close",
-  };
-
   constructor(expression) {
     this.expression = expression;
   }
@@ -82,25 +130,31 @@ class Evaluator {
     for (let index = 0; index < this.expression.length; index++) {
       const currentItem = this.expression[index];
 
+      // CONSTANT
+      if (currentItem["keyType"] == Config.KEY_CLASS.CONSTANT) {
+        valuesStack.push(Config.CONSTANTS[currentItem["id"]]);
+      }
+
+      // TODO: check a.b.c.d....
       // NUMBER
-      if (currentItem["keyType"] == Evaluator.TYPES.NUMBER) {
+      if (currentItem["keyType"] == Config.KEY_CLASS.NUMBER) {
         let stringBuffer = "";
 
         while (
           index < this.expression.length &&
-          this.expression[index]["keyType"] == Evaluator.TYPES.NUMBER
+          this.expression[index]["keyType"] == Config.KEY_CLASS.NUMBER
         ) {
           stringBuffer += this.expression[index++]["content"];
         }
 
         if (
           index < this.expression.length &&
-          this.expression[index]["keyType"] == Evaluator.TYPES.DECIMAL_POINT
+          this.expression[index]["keyType"] == Config.KEY_CLASS.DECIMAL_POINT
         ) {
           stringBuffer += this.expression[index++]["content"];
           while (
             index < this.expression.length &&
-            this.expression[index]["keyType"] == Evaluator.TYPES.NUMBER
+            this.expression[index]["keyType"] == Config.KEY_CLASS.NUMBER
           ) {
             stringBuffer += this.expression[index++]["content"];
           }
@@ -112,55 +166,52 @@ class Evaluator {
 
       // FUNCTION or OPEN
       if (
-        currentItem["keyType"] == Evaluator.TYPES.OPEN ||
-        currentItem["keyType"] == Evaluator.TYPES.FUNCTION
+        currentItem["keyType"] == Config.KEY_CLASS.OPEN ||
+        currentItem["keyType"] == Config.KEY_CLASS.FUNCTION
       ) {
         operatorsStack.push(currentItem);
       }
 
-      // CLOSE (TODO: CHECK ERROR HERE?)
-      if (currentItem["keyType"] == Evaluator.TYPES.CLOSE) {
-        const test = [];
+      // CLOSE
+      if (currentItem["keyType"] == Config.KEY_CLASS.CLOSE) {
         while (
-          ![Evaluator.TYPES.OPEN, Evaluator.TYPES.FUNCTION].includes(
+          ![Config.KEY_CLASS.OPEN, Config.KEY_CLASS.FUNCTION].includes(
             operatorsStack[operatorsStack.length - 1]["keyType"]
           )
         ) {
+          const lastOperatorOnStack = operatorsStack.pop();
           const secondOperand = valuesStack.pop();
           const firstOperand = valuesStack.pop();
-          const lastOperatorOnStack = operatorsStack.pop()["content"];
 
-          const newValue = this.applyOperator(
-            lastOperatorOnStack,
-            secondOperand,
-            firstOperand
-          );
-
-          valuesStack.push(newValue);
+          const operatorFunction = Config.OPERATORS[lastOperatorOnStack["id"]];
+          valuesStack.push(operatorFunction(firstOperand, secondOperand));
         }
-        // TODO: for function => apply function
-        operatorsStack.pop();
+
+        const removedElementFromStack = operatorsStack.pop();
+        if (removedElementFromStack["keyType"] == Config.KEY_CLASS.FUNCTION) {
+          const chosen_function =
+            Config.FUNCTIONS[removedElementFromStack["id"]];
+          valuesStack.push(chosen_function(valuesStack.pop()));
+        }
       }
 
       // OPERATOR
-      if (currentItem["keyType"] == Evaluator.TYPES.OPERATOR) {
+      // TODO: refactor has precedence
+      if (currentItem["keyType"] == Config.KEY_CLASS.OPERATOR) {
         while (
           operatorsStack.length > 0 &&
           this.hasPrecedence(
-            currentItem["content"],
-            operatorsStack[operatorsStack.length - 1]["content"]
+            currentItem["id"],
+            operatorsStack[operatorsStack.length - 1]["id"]
           )
         ) {
-          const lastOperatorOnStack = operatorsStack.pop()["content"];
+          const lastOperatorOnStack = operatorsStack.pop();
           const secondOperand = valuesStack.pop();
           const firstOperand = valuesStack.pop();
 
-          const newValue = this.applyOperator(
-            lastOperatorOnStack,
-            secondOperand,
-            firstOperand
-          );
-          valuesStack.push(newValue);
+          console.log("lastOperatorOnStack", lastOperatorOnStack);
+          const operatorFunction = Config.OPERATORS[lastOperatorOnStack["id"]];
+          valuesStack.push(operatorFunction(firstOperand, secondOperand));
         }
 
         operatorsStack.push(currentItem);
@@ -168,85 +219,95 @@ class Evaluator {
     }
 
     while (operatorsStack.length > 0) {
-      valuesStack.push(
-        this.applyOperator(
-          operatorsStack.pop()["content"],
-          valuesStack.pop(),
-          valuesStack.pop()
-        )
-      );
+      const lastOperatorOnStack = operatorsStack.pop();
+      const secondOperand = valuesStack.pop();
+      const firstOperand = valuesStack.pop();
+
+      const operatorFunction = Config.OPERATORS[lastOperatorOnStack["id"]];
+      valuesStack.push(operatorFunction(firstOperand, secondOperand));
     }
 
     return valuesStack.pop();
   };
 
-  hasPrecedence = (op1, op2) => {
+  hasPrecedence = (newOperator, existingOperatorOnStack) => {
     // TODO: add logic for FUNCTION
-    if (op2 == "(" || op2 == ")") {
+    if (
+      [Config.KEY_CLASS.OPEN, Config.KEY_CLASS.CLOSE].includes(
+        existingOperatorOnStack
+      )
+    ) {
       return false;
     }
-    if ((op1 == "*" || op1 == "/") && (op2 == "+" || op2 == "-")) {
-      return false;
-    } else {
-      return true;
-    }
-  };
 
-  applyOperator = (operator, secondOperand, firstOperand) => {
-    switch (operator) {
-      case "+":
-        return firstOperand + secondOperand;
-      case "-":
-        return firstOperand - secondOperand;
-      case "*":
-        return firstOperand * secondOperand;
-      case "/":
-        if (secondOperand == 0) {
-          throw Error("Division by 0");
-        }
-        return parseFloat(firstNumber / secondOperand, 10);
+    if (Object.keys(Config.FUNCTIONS).includes(existingOperatorOnStack)) {
+      return false;
     }
-    return 0;
+
+    const lower_priority_operators = [
+      Config.OPERATORS.addition.name,
+      Config.OPERATORS.subtraction.name,
+    ];
+    const higher_priority_operators = [
+      Config.OPERATORS.multiplication.name,
+      Config.OPERATORS.division.name,
+    ];
+
+    if (
+      higher_priority_operators.includes(newOperator) &&
+      lower_priority_operators.includes(existingOperatorOnStack)
+    ) {
+      return false;
+    }
+
+    return true;
   };
+}
+
+class FailedTest extends Error {
+  constructor(expected, actual) {
+    super(`Expected=[${expected}] is different from Actual=[${actual}]`);
+  }
 }
 
 tests = [
   () => {
     expression = [
       {
-        keyType: Evaluator.TYPES.NUMBER,
+        keyType: Config.KEY_CLASS.NUMBER,
         content: "3",
       },
       {
-        keyType: Evaluator.TYPES.NUMBER,
+        keyType: Config.KEY_CLASS.NUMBER,
         content: "4",
       },
       {
-        keyType: Evaluator.TYPES.DECIMAL_POINT,
+        keyType: Config.KEY_CLASS.DECIMAL_POINT,
         content: ".",
       },
       {
-        keyType: Evaluator.TYPES.NUMBER,
+        keyType: Config.KEY_CLASS.NUMBER,
         content: "4",
       },
       {
-        keyType: Evaluator.TYPES.OPERATOR,
+        keyType: Config.KEY_CLASS.OPERATOR,
         content: "+",
+        id: "addition",
       },
       {
-        keyType: Evaluator.TYPES.NUMBER,
+        keyType: Config.KEY_CLASS.NUMBER,
         content: "3",
       },
       {
-        keyType: Evaluator.TYPES.NUMBER,
+        keyType: Config.KEY_CLASS.NUMBER,
         content: "4",
       },
       {
-        keyType: Evaluator.TYPES.DECIMAL_POINT,
+        keyType: Config.KEY_CLASS.DECIMAL_POINT,
         content: ".",
       },
       {
-        keyType: Evaluator.TYPES.NUMBER,
+        keyType: Config.KEY_CLASS.NUMBER,
         content: "4",
       },
     ];
@@ -261,48 +322,55 @@ tests = [
   () => {
     expression = [
       {
-        keyType: Evaluator.TYPES.OPEN,
+        keyType: Config.KEY_CLASS.OPEN,
         content: "(",
+        id: "open",
       },
       {
-        keyType: Evaluator.TYPES.NUMBER,
+        keyType: Config.KEY_CLASS.NUMBER,
         content: "3",
       },
       {
-        keyType: Evaluator.TYPES.OPERATOR,
+        keyType: Config.KEY_CLASS.OPERATOR,
         content: "+",
+        id: "addition",
       },
       {
-        keyType: Evaluator.TYPES.NUMBER,
+        keyType: Config.KEY_CLASS.NUMBER,
         content: "4",
       },
       {
-        keyType: Evaluator.TYPES.CLOSE,
+        keyType: Config.KEY_CLASS.CLOSE,
         content: ")",
+        id: "close",
       },
       {
-        keyType: Evaluator.TYPES.OPERATOR,
+        keyType: Config.KEY_CLASS.OPERATOR,
         content: "*",
+        id: "multiplication",
       },
       {
-        keyType: Evaluator.TYPES.OPEN,
+        keyType: Config.KEY_CLASS.OPEN,
         content: "(",
+        id: "open",
       },
       {
-        keyType: Evaluator.TYPES.NUMBER,
+        keyType: Config.KEY_CLASS.NUMBER,
         content: "3",
       },
       {
-        keyType: Evaluator.TYPES.OPERATOR,
+        keyType: Config.KEY_CLASS.OPERATOR,
         content: "-",
+        id: "subtraction",
       },
       {
-        keyType: Evaluator.TYPES.NUMBER,
+        keyType: Config.KEY_CLASS.NUMBER,
         content: "1",
       },
       {
-        keyType: Evaluator.TYPES.CLOSE,
+        keyType: Config.KEY_CLASS.CLOSE,
         content: ")",
+        id: "close",
       },
     ];
 
@@ -316,12 +384,6 @@ tests = [
   () => {},
   () => {},
 ];
-
-class FailedTest extends Error {
-  constructor(expected, actual) {
-    super(`Expected=[${expected}] is different from Actual=[${actual}]`);
-  }
-}
 
 runTests = () => {
   const number_of_tests = tests.length;

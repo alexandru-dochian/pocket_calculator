@@ -19,8 +19,17 @@ export default class Evaluator {
       // NUMBER
       if (currentItem["keyType"] == Config.KEY_CLASS.NUMBER) {
         // NUMBER from previous evaluation
+        console.log("");
         if (currentItem["content"].toString().length != 1) {
           valuesStack.push(currentItem["content"]);
+
+          if (
+            index + 1 < this.expression.length &&
+            this.expression[index + 1]["keyType"] ==
+              Config.KEY_CLASS.DECIMAL_POINT
+          ) {
+            throw new Error("Invalid expression");
+          }
           continue;
         }
 
@@ -44,6 +53,13 @@ export default class Evaluator {
           ) {
             stringBuffer += this.expression[index++]["content"];
           }
+        }
+
+        if (
+          index < this.expression.length &&
+          this.expression[index]["keyType"] == Config.KEY_CLASS.DECIMAL_POINT
+        ) {
+          throw new Error("Invalid expression");
         }
 
         index--;
@@ -115,8 +131,12 @@ export default class Evaluator {
   };
 
   toExpression = (result) => {
-    if (result == undefined) {
-      return [];
+    if (result == undefined || isNaN(result)) {
+      throw new Exception("Invalid expression");
+    }
+    // TODO: remove this logic
+    if (result.toString().includes("e") && result < 1) {
+      result = 0;
     }
     return [{ keyType: Config.KEY_CLASS.NUMBER, content: result }];
   };

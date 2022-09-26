@@ -5,7 +5,6 @@ export default class Calculator {
   constructor() {
     // javascript state
     this.state = {
-      history: [],
       expression: [],
     };
 
@@ -59,43 +58,43 @@ export default class Calculator {
   };
 
   handleEqual = () => {
-    const { expression: oldExpression } = this.state;
-    const newExpression = new Evaluator(oldExpression).evaluate();
-    this.state.expression = newExpression;
+    try {
+      const { expression: oldExpression } = this.state;
+      const newExpression = new Evaluator(oldExpression).evaluate();
+      this.state.expression = newExpression;
 
-    this.saveHistory(oldExpression, newExpression);
+      this.saveHistory(oldExpression, newExpression);
+    } catch (error) {
+      alert("Could not evaluate your expression! (~_~)");
+    }
   };
 
   saveHistory = (oldExpression, newExpression) => {
-    const oldExpressionString = this.fromExpressionToString(oldExpression);
-    const newExpressionString = this.fromExpressionToString(newExpression);
-
-    if (
-      oldExpression.length == 0 ||
-      oldExpressionString == newExpressionString
-    ) {
+    if (oldExpression.length == 0) {
       return;
     }
 
-    this.state.history.push({
-      oldExpression,
-      newExpression,
-    });
+    const oldExpressionString = this.fromExpressionToString(oldExpression);
+    const newExpressionString = this.fromExpressionToString(newExpression);
+
+    if (oldExpressionString == newExpressionString) {
+      return;
+    }
 
     const historyItem = document.createElement("div");
 
     const expressionDiv = document.createElement("div");
     expressionDiv.appendChild(document.createTextNode(oldExpressionString));
     expressionDiv.className = "historyExpression";
-    expressionDiv.addEventListener("click", (e) => {
-      this.handleChangeFromHistory(oldExpression);
+    expressionDiv.addEventListener("click", () => {
+      this.handleChangeFromHistory([...oldExpression]);
     });
 
     const resultDiv = document.createElement("div");
     resultDiv.appendChild(document.createTextNode(newExpressionString));
     resultDiv.className = "historyResult";
-    resultDiv.addEventListener("click", (e) => {
-      this.handleChangeFromHistory(newExpression);
+    resultDiv.addEventListener("click", () => {
+      this.handleChangeFromHistory([...newExpression]);
     });
 
     historyItem.appendChild(expressionDiv);

@@ -23,7 +23,7 @@ npm install && npm start
 ### The application is accessible at:
 
 ```
-http://localhost/
+http://localhost:3000/
 ```
 
 <hr/>
@@ -40,7 +40,7 @@ docker-compose up
 ### The application is accessible at:
 
 ```
-http://localhost/
+http://localhost:3000/
 ```
 
 <hr/>

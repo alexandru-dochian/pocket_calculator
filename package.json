@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node js/test.js",
-    "start": "sudo http-server --port 80"
+    "start": "http-server --port 3000"
   },
   "dependencies": {
     "http-server": "^14.1.1"

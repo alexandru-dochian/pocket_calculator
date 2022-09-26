@@ -1,6 +1,9 @@
 # Implementation of an electronic calculator using plain javascript
 
 <hr/>
+
+![PC](readme_resources/snapshot.jpeg)
+
 <hr/>
 
 ## Latest public deployment can be found here:

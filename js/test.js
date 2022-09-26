@@ -45,7 +45,7 @@ const tests = [
     ];
 
     const expected = 68.8;
-    const actual = new Evaluator(expression).evaluate();
+    const actual = new Evaluator(expression).evaluate()[0]["content"];
 
     if (expected != actual) {
       throw new FailedTest(expected, actual);
@@ -107,14 +107,47 @@ const tests = [
     ];
 
     const expected = 14.0;
-    const actual = new Evaluator(expression).evaluate();
+    const actual = new Evaluator(expression).evaluate()[0]["content"];
 
     if (expected != actual) {
       throw new FailedTest(expected, actual);
     }
   },
-  () => {},
-  () => {},
+  () => {
+    const expression = [
+      {
+        keyType: Config.KEY_CLASS.FUNCTION,
+        content: "sin",
+        id: "sin",
+      },
+      {
+        keyType: Config.KEY_CLASS.CONSTANT,
+        content: "pi",
+        id: "pi",
+      },
+      {
+        keyType: Config.KEY_CLASS.OPERATOR,
+        content: "/",
+        id: "division",
+      },
+      {
+        keyType: Config.KEY_CLASS.NUMBER,
+        content: "2",
+      },
+      {
+        keyType: Config.KEY_CLASS.CLOSE,
+        content: ")",
+        id: "close",
+      },
+    ];
+
+    const expected = 1.0;
+    const actual = new Evaluator(expression).evaluate()[0]["content"];
+
+    if (expected != actual) {
+      throw new FailedTest(expected, actual);
+    }
+  },
 ];
 
 const runTests = () => {

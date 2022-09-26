@@ -1,0 +1,13 @@
+# Documentation
+LICENSE
+README.md
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# npm
+node_modules
+package-lock.json
+package.json

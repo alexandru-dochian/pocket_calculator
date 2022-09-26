@@ -1,23 +1,27 @@
 # Implementation of an electronic calculator using plain javascript
 
+<hr/>
+<hr/>
+<hr/>
+<hr/>
+
 ## 1. Run using npm
 
 ### Install
 
 ```
-npm install
+npm install && npm start
 ```
 
-### Run
+### The application is accessible at:
 
 ```
-npm start
+http://localhost/
 ```
 
-### Access the application
-
-The application is accessible at <b>[http://localhost](http://localhost)</b>
-
+<hr/>
+<hr/>
+<hr/>
 <hr/>
 
 ## 2. Run using Docker
@@ -26,6 +30,19 @@ The application is accessible at <b>[http://localhost](http://localhost)</b>
 docker-compose up
 ```
 
-### Access the application
+### The application is accessible at:
 
-The application is accessible at <b>[http://localhost](http://localhost)</b>
+```
+http://localhost/
+```
+
+<hr/>
+<hr/>
+<hr/>
+<hr/>
+
+# Test the application
+
+```
+npm test
+```

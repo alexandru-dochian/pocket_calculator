@@ -36,12 +36,6 @@ export default class Calculator {
     this.updateDOM();
   };
 
-  updateDOM = () => {
-    const { expression } = this.state;
-    const expressionString = this.fromExpressionToString(expression);
-    this.dom.calculatorScreenContent.innerText = expressionString;
-  };
-
   handleControlKey = (keyIdentifier) => {
     if (keyIdentifier == "clear") {
       this.handleClearScreen();
@@ -93,15 +87,32 @@ export default class Calculator {
     const expressionDiv = document.createElement("div");
     expressionDiv.appendChild(document.createTextNode(oldExpressionString));
     expressionDiv.className = "historyExpression";
+    expressionDiv.addEventListener("click", (e) => {
+      this.handleChangeFromHistory(oldExpression);
+    });
 
     const resultDiv = document.createElement("div");
     resultDiv.appendChild(document.createTextNode(newExpressionString));
     resultDiv.className = "historyResult";
+    resultDiv.addEventListener("click", (e) => {
+      this.handleChangeFromHistory(newExpression);
+    });
 
     historyItem.appendChild(expressionDiv);
     historyItem.appendChild(resultDiv);
 
     this.dom.historyList.appendChild(historyItem);
+  };
+
+  handleChangeFromHistory = (expression) => {
+    this.state.expression = expression;
+    this.updateDOM();
+  };
+
+  updateDOM = () => {
+    const { expression } = this.state;
+    const expressionString = this.fromExpressionToString(expression);
+    this.dom.calculatorScreenContent.innerText = expressionString;
   };
 
   fromExpressionToString = (expression) => {

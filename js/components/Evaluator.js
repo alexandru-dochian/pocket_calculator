@@ -8,7 +8,6 @@ export default class Evaluator {
   evaluate = () => {
     let valuesStack = [];
     let operatorsStack = [];
-
     for (let index = 0; index < this.expression.length; index++) {
       const currentItem = this.expression[index];
 
@@ -17,9 +16,14 @@ export default class Evaluator {
         valuesStack.push(Config.CONSTANTS[currentItem["id"]]);
       }
 
-      // TODO: check a.b.c.d....
       // NUMBER
       if (currentItem["keyType"] == Config.KEY_CLASS.NUMBER) {
+        // NUMBER from previous evaluation
+        if (currentItem["content"].toString().length != 1) {
+          valuesStack.push(currentItem["content"]);
+          continue;
+        }
+
         let stringBuffer = "";
 
         while (
@@ -78,7 +82,6 @@ export default class Evaluator {
       }
 
       // OPERATOR
-      // TODO: refactor has precedence
       if (currentItem["keyType"] == Config.KEY_CLASS.OPERATOR) {
         while (
           operatorsStack.length > 0 &&
@@ -91,7 +94,6 @@ export default class Evaluator {
           const secondOperand = valuesStack.pop();
           const firstOperand = valuesStack.pop();
 
-          console.log("lastOperatorOnStack", lastOperatorOnStack);
           const operatorFunction = Config.OPERATORS[lastOperatorOnStack["id"]];
           valuesStack.push(operatorFunction(firstOperand, secondOperand));
         }
@@ -109,11 +111,17 @@ export default class Evaluator {
       valuesStack.push(operatorFunction(firstOperand, secondOperand));
     }
 
-    return valuesStack.pop();
+    return this.toExpression(valuesStack.pop());
+  };
+
+  toExpression = (result) => {
+    if (result == undefined) {
+      return [];
+    }
+    return [{ keyType: Config.KEY_CLASS.NUMBER, content: result }];
   };
 
   hasPrecedence = (newOperator, existingOperatorOnStack) => {
-    // TODO: add logic for FUNCTION
     if (
       [Config.KEY_CLASS.OPEN, Config.KEY_CLASS.CLOSE].includes(
         existingOperatorOnStack

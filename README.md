@@ -2,6 +2,13 @@
 
 <hr/>
 <hr/>
+
+## Latest public deployment can be found here:
+
+```
+https://alexandru-dochian.github.io/pocket_calculator/
+```
+
 <hr/>
 <hr/>
 

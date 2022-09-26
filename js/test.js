@@ -126,7 +126,6 @@ const runTests = () => {
     try {
       test();
     } catch (error) {
-      console.log("Error", error);
       exception = error;
       result = "Failed!";
     } finally {

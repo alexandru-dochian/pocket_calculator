@@ -1,4 +1,5 @@
 import Config from "../configurationn/Config.js";
+import Evaluator from "./Evaluator.js";
 
 export default class Calculator {
   constructor() {
@@ -11,7 +12,7 @@ export default class Calculator {
     // DOM
     this.dom = {
       calculatorScreenContent: document.getElementById("screen"),
-      history: document.getElementById("history"),
+      historyList: document.getElementById("historyList"),
     };
 
     // Set listeners
@@ -36,21 +37,9 @@ export default class Calculator {
   };
 
   updateDOM = () => {
-    const domContent = this.fromStateToDom();
-    this.dom.calculatorScreenContent.innerText = domContent;
-  };
-
-  fromStateToDom = () => {
     const { expression } = this.state;
-    return expression
-      .map((item) => {
-        if (item["keyType"] == Config.KEY_CLASS.FUNCTION) {
-          return item["content"] + "(";
-        } else {
-          return item["content"];
-        }
-      })
-      .join("");
+    const expressionString = this.fromExpressionToString(expression);
+    this.dom.calculatorScreenContent.innerText = expressionString;
   };
 
   handleControlKey = (keyIdentifier) => {
@@ -76,10 +65,54 @@ export default class Calculator {
   };
 
   handleEqual = () => {
-    const { expression } = this.state;
-    const result = new Evaluator(expression).evaluate();
-    this.state.expression = [
-      { keyType: Config.KEY_CLASS.NUMBER, content: result },
-    ];
+    const { expression: oldExpression } = this.state;
+    const newExpression = new Evaluator(oldExpression).evaluate();
+    this.state.expression = newExpression;
+
+    this.saveHistory(oldExpression, newExpression);
+  };
+
+  saveHistory = (oldExpression, newExpression) => {
+    const oldExpressionString = this.fromExpressionToString(oldExpression);
+    const newExpressionString = this.fromExpressionToString(newExpression);
+
+    if (
+      oldExpression.length == 0 ||
+      oldExpressionString == newExpressionString
+    ) {
+      return;
+    }
+
+    this.state.history.push({
+      oldExpression,
+      newExpression,
+    });
+
+    const historyItem = document.createElement("div");
+
+    const expressionDiv = document.createElement("div");
+    expressionDiv.appendChild(document.createTextNode(oldExpressionString));
+    expressionDiv.className = "historyExpression";
+
+    const resultDiv = document.createElement("div");
+    resultDiv.appendChild(document.createTextNode(newExpressionString));
+    resultDiv.className = "historyResult";
+
+    historyItem.appendChild(expressionDiv);
+    historyItem.appendChild(resultDiv);
+
+    this.dom.historyList.appendChild(historyItem);
+  };
+
+  fromExpressionToString = (expression) => {
+    return expression
+      .map((item) => {
+        if (item["keyType"] == Config.KEY_CLASS.FUNCTION) {
+          return item["content"] + "(";
+        } else {
+          return item["content"];
+        }
+      })
+      .join("");
   };
 }

@@ -7,19 +7,7 @@ const tests = [
     const expression = [
       {
         keyType: Config.KEY_CLASS.NUMBER,
-        content: "3",
-      },
-      {
-        keyType: Config.KEY_CLASS.NUMBER,
-        content: "4",
-      },
-      {
-        keyType: Config.KEY_CLASS.DECIMAL_POINT,
-        content: ".",
-      },
-      {
-        keyType: Config.KEY_CLASS.NUMBER,
-        content: "4",
+        content: "34.4",
       },
       {
         keyType: Config.KEY_CLASS.OPERATOR,
@@ -28,28 +16,12 @@ const tests = [
       },
       {
         keyType: Config.KEY_CLASS.NUMBER,
-        content: "3",
-      },
-      {
-        keyType: Config.KEY_CLASS.NUMBER,
-        content: "4",
-      },
-      {
-        keyType: Config.KEY_CLASS.DECIMAL_POINT,
-        content: ".",
-      },
-      {
-        keyType: Config.KEY_CLASS.NUMBER,
-        content: "4",
+        content: "34.4",
       },
     ];
 
-    const expected = 68.8;
     const actual = new Evaluator(expression).evaluate()[0]["content"];
-
-    if (expected != actual) {
-      throw new FailedTest(expected, actual);
-    }
+    fail(68.8, actual);
   },
   () => {
     const expression = [
@@ -106,12 +78,8 @@ const tests = [
       },
     ];
 
-    const expected = 14.0;
     const actual = new Evaluator(expression).evaluate()[0]["content"];
-
-    if (expected != actual) {
-      throw new FailedTest(expected, actual);
-    }
+    fail(14.0, actual);
   },
   () => {
     const expression = [
@@ -141,29 +109,89 @@ const tests = [
       },
     ];
 
-    const expected = 1.0;
     const actual = new Evaluator(expression).evaluate()[0]["content"];
+    fail(1.0, actual);
+  },
+  () => {
+    const expression = [
+      {
+        keyType: Config.KEY_CLASS.CONSTANT,
+        content: "Infinity",
+        id: "infinity",
+      },
+      {
+        keyType: Config.KEY_CLASS.OPERATOR,
+        content: "*",
+        id: "multiplication",
+      },
+      {
+        keyType: Config.KEY_CLASS.NUMBER,
+        content: "3",
+      },
+    ];
 
-    if (expected != actual) {
-      throw new FailedTest(expected, actual);
-    }
+    const actual = new Evaluator(expression).evaluate()[0]["content"];
+    fail(Infinity, actual);
+  },
+  () => {
+    const regexExpectedMatches = [
+      { expected: true, number: "1" },
+      { expected: true, number: "1.1" },
+      { expected: true, number: "12.12" },
+      { expected: true, number: "-12.12" },
+      { expected: true, number: "2e-5" },
+      { expected: true, number: "2e5" },
+      { expected: true, number: "2.2e5" },
+      { expected: true, number: "-22.22e5" },
+      { expected: true, number: "22.22e-5" },
+      { expected: false, number: "--1" },
+      { expected: false, number: "1." },
+      { expected: false, number: "." },
+      { expected: false, number: ".1" },
+      { expected: false, number: "2.1." },
+      { expected: false, number: ".2.1" },
+      { expected: false, number: "2.1.2" },
+      { expected: false, number: "+4.1" },
+      { expected: false, number: "4.1e" },
+      { expected: false, number: "4.1e+5" },
+      { expected: false, number: "4.1e*5" },
+      { expected: false, number: "4.1e-5.2" },
+      { expected: false, number: "4.1e-5.2" },
+    ];
+
+    regexExpectedMatches.forEach((regexExpectedMatch) => {
+      fail(
+        regexExpectedMatch["expected"],
+        Evaluator.matchNumber(regexExpectedMatch["number"])
+      );
+    });
   },
 ];
 
+const fail = (expected, actual) => {
+  if (expected != actual) {
+    throw new FailedTest(expected, actual);
+  }
+};
+
 const runTests = () => {
+  const verbose = false;
   const number_of_tests = tests.length;
 
   tests.forEach((test, test_index) => {
     let result = "Success!";
-    let exception = "";
+    let errorMessage = "";
     try {
       test();
     } catch (error) {
-      exception = error;
+      errorMessage = error.message;
       result = "Failed!";
+      if (verbose) {
+        console.log(error);
+      }
     } finally {
       console.log(
-        `Test ${test_index + 1}/${number_of_tests} ${result} ${exception}`
+        `Test ${test_index + 1}/${number_of_tests} ${result} ${errorMessage}`
       );
     }
   });

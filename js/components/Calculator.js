@@ -6,6 +6,7 @@ export default class Calculator {
     // javascript state
     this.state = {
       expression: [],
+      history: [],
     };
 
     // DOM
@@ -62,7 +63,6 @@ export default class Calculator {
       const { expression: oldExpression } = this.state;
       const newExpression = new Evaluator(oldExpression).evaluate();
       this.state.expression = newExpression;
-
       this.saveHistory(oldExpression, newExpression);
     } catch (error) {
       alert("Could not evaluate your expression! (~_~)");
@@ -81,37 +81,60 @@ export default class Calculator {
       return;
     }
 
-    const historyItem = document.createElement("div");
-
-    const expressionDiv = document.createElement("div");
-    expressionDiv.appendChild(document.createTextNode(oldExpressionString));
-    expressionDiv.className = "historyExpression";
-    expressionDiv.addEventListener("click", () => {
-      this.handleChangeFromHistory([...oldExpression]);
-    });
-
-    const resultDiv = document.createElement("div");
-    resultDiv.appendChild(document.createTextNode(newExpressionString));
-    resultDiv.className = "historyResult";
-    resultDiv.addEventListener("click", () => {
-      this.handleChangeFromHistory([...newExpression]);
-    });
-
-    historyItem.appendChild(expressionDiv);
-    historyItem.appendChild(resultDiv);
-
-    this.dom.historyList.appendChild(historyItem);
+    const historyData = {
+      old: {
+        expression: [...oldExpression],
+        expressionString: oldExpressionString,
+      },
+      new: {
+        expression: [...newExpression],
+        expressionString: newExpressionString,
+      },
+    };
+    this.state.history.push(historyData);
   };
 
   handleChangeFromHistory = (expression) => {
-    this.state.expression = expression;
+    this.state.expression = this.state.expression.concat([...expression]);
     this.updateDOM();
   };
 
   updateDOM = () => {
-    const { expression } = this.state;
+    // Calculator
+    const { expression, history } = this.state;
     const expressionString = this.fromExpressionToString(expression);
     this.dom.calculatorScreenContent.innerText = expressionString;
+
+    // History
+    while (history.length != 0) {
+      const historyData = history.pop();
+
+      // History expression
+      const expressionDiv = document.createElement("div");
+      expressionDiv.appendChild(
+        document.createTextNode(historyData["old"]["expressionString"])
+      );
+      expressionDiv.className = "historyExpression";
+      expressionDiv.addEventListener("click", () => {
+        this.handleChangeFromHistory(historyData["old"]["expression"]);
+      });
+
+      // History result
+      const resultDiv = document.createElement("div");
+      resultDiv.appendChild(
+        document.createTextNode(historyData["new"]["expressionString"])
+      );
+      resultDiv.className = "historyResult";
+      resultDiv.addEventListener("click", () => {
+        this.handleChangeFromHistory(historyData["new"]["expression"]);
+      });
+
+      const historyDomItem = document.createElement("div");
+      historyDomItem.appendChild(expressionDiv);
+      historyDomItem.appendChild(resultDiv);
+
+      this.dom.historyList.appendChild(historyDomItem);
+    }
   };
 
   fromExpressionToString = (expression) => {

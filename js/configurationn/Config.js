@@ -12,6 +12,7 @@ export default class Config {
 
   static CONSTANTS = {
     pi: Math.PI,
+    infinity: Infinity,
   };
 
   static FUNCTIONS = {
@@ -25,11 +26,6 @@ export default class Config {
     addition: (x, y) => x + y,
     subtraction: (x, y) => x - y,
     multiplication: (x, y) => x * y,
-    division: (x, y) => {
-      if (y == 0) {
-        throw Error("Division by 0");
-      }
-      return parseFloat(x / y);
-    },
+    division: (x, y) => x / y,
   };
 }

@@ -52,7 +52,7 @@ body {
 .container > .calculator > #screen {
   /* dimensions */
   width: 512px;
-  height: 64px;
+  height: 96px;
 
   /* colors */
   border: 10px solid #ebe70a;
@@ -60,6 +60,8 @@ body {
 
   /* text */
   text-align: right;
+  font-size: 24px;
+  line-height: 16px;
 
   /* others */
   /* auto hidden */
@@ -154,6 +156,7 @@ body {
 
   /* others */
   border: 10px solid #518f39;
+  border-top: 0px;
   box-sizing: border-box;
 }
 
@@ -200,7 +203,7 @@ body {
 
   /* text */
   text-align: center;
-  font-size: 25px;
+  font-size: 24px;
 
   /* content display */
   flex: 3;

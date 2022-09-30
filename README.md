@@ -2,7 +2,7 @@
 
 <hr/>
 
-![PC](readme_resources/snapshot.jpeg)
+![PC](readme_resources/snapshot.png)
 
 <hr/>
 

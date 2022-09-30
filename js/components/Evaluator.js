@@ -166,6 +166,14 @@ export default class Evaluator {
           id: "infinity",
         },
       ];
+    } else if (resultValue === Config.CONSTANTS.minusInfinity) {
+      return [
+        {
+          keyType: Config.KEY_CLASS.CONSTANT,
+          content: resultValue,
+          id: "minusInfinity",
+        },
+      ];
     } else {
       return resultValue
         .toString()
@@ -209,6 +217,8 @@ export default class Evaluator {
   }
 
   checkAndAdjustComputedValue(computedValue) {
+    const computedValueAbsolute = Math.abs(computedValue);
+
     if (isNaN(computedValue)) {
       throw new ImpossibleToCompute();
     }
@@ -217,7 +227,14 @@ export default class Evaluator {
       return Config.CONSTANTS.infinity;
     }
 
-    if (computedValue < Evaluator.MIN_VALUE_THRESHOLD) {
+    if (computedValue < -1 * Evaluator.MAX_VALUE_THRESHOLD) {
+      return Config.CONSTANTS.minusInfinity;
+    }
+
+    if (
+      computedValueAbsolute > 0 &&
+      computedValueAbsolute < Evaluator.MIN_VALUE_THRESHOLD
+    ) {
       return 0;
     }
 

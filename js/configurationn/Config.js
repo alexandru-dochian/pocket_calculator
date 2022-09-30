@@ -13,6 +13,7 @@ export default class Config {
   static CONSTANTS = {
     pi: Math.PI,
     infinity: Infinity,
+    minusInfinity: -Infinity,
   };
 
   static FUNCTIONS = {

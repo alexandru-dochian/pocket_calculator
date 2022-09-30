@@ -1,6 +1,7 @@
 import Config from "./configurationn/Config.js";
 import Evaluator from "./components/Evaluator.js";
 import FailedTest from "./errors/FailedTest.js";
+import Calculator from "./components/Calculator.js";
 
 const tests = [
   () => {
@@ -20,8 +21,10 @@ const tests = [
       },
     ];
 
-    const actual = new Evaluator(expression).evaluate()[0]["content"];
-    fail(68.8, actual);
+    const expressionString = Calculator.fromExpressionToString(
+      new Evaluator(expression).evaluate()
+    );
+    fail(68.8, parseFloat(expressionString));
   },
   () => {
     const expression = [
@@ -78,8 +81,10 @@ const tests = [
       },
     ];
 
-    const actual = new Evaluator(expression).evaluate()[0]["content"];
-    fail(14.0, actual);
+    const expressionString = Calculator.fromExpressionToString(
+      new Evaluator(expression).evaluate()
+    );
+    fail(14.0, parseFloat(expressionString));
   },
   () => {
     const expression = [
@@ -109,8 +114,10 @@ const tests = [
       },
     ];
 
-    const actual = new Evaluator(expression).evaluate()[0]["content"];
-    fail(1.0, actual);
+    const expressionString = Calculator.fromExpressionToString(
+      new Evaluator(expression).evaluate()
+    );
+    fail(1.0, parseFloat(expressionString));
   },
   () => {
     const expression = [
@@ -130,8 +137,10 @@ const tests = [
       },
     ];
 
-    const actual = new Evaluator(expression).evaluate()[0]["content"];
-    fail(Infinity, actual);
+    const expressionString = Calculator.fromExpressionToString(
+      new Evaluator(expression).evaluate()
+    );
+    fail(Infinity, parseFloat(expressionString));
   },
   () => {
     const regexExpectedMatches = [

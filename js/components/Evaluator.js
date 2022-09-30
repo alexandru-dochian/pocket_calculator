@@ -113,9 +113,7 @@ export default class Evaluator {
     }
 
     this.currentIndex--;
-    this.valuesStack.push(
-      this.checkAndAdjustComputedValue(parseFloat(stringBuffer))
-    );
+    this.addValueOnStack(parseFloat(stringBuffer));
   }
 
   hasPrecedence = (newOperator, existingOperatorOnStack) => {
@@ -169,7 +167,43 @@ export default class Evaluator {
         },
       ];
     } else {
-      return [{ keyType: Config.KEY_CLASS.NUMBER, content: resultValue }];
+      console.log(
+        "result",
+        resultValue
+          .toString()
+          .split("")
+          .map((character) => {
+            if (character == ".")
+              return {
+                keyType: Config.KEY_CLASS.DECIMAL_POINT,
+                content: character,
+                id: Config.KEY_CLASS.DECIMAL_POINT,
+              };
+            else {
+              return {
+                keyType: Config.KEY_CLASS.NUMBER,
+                content: character,
+              };
+            }
+          })
+      );
+      return resultValue
+        .toString()
+        .split("")
+        .map((character) => {
+          if (character == ".")
+            return {
+              keyType: Config.KEY_CLASS.DECIMAL_POINT,
+              content: character,
+              id: Config.KEY_CLASS.DECIMAL_POINT,
+            };
+          else {
+            return {
+              keyType: Config.KEY_CLASS.NUMBER,
+              content: character,
+            };
+          }
+        });
     }
   }
 

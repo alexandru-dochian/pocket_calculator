@@ -6,11 +6,7 @@
 
 <hr/>
 
-## Latest public deployment can be found here:
-
-```
-https://alexandru-dochian.github.io/pocket_calculator/
-```
+## Latest public deployment can be found here https://alexandru-dochian.github.io/pocket_calculator/
 
 <hr/>
 <hr/>
@@ -23,11 +19,7 @@ https://alexandru-dochian.github.io/pocket_calculator/
 npm install && npm start
 ```
 
-### The application is accessible at:
-
-```
-http://localhost:3000/
-```
+### The application is accessible at http://localhost:3000/
 
 <hr/>
 <hr/>
@@ -40,11 +32,7 @@ http://localhost:3000/
 docker-compose up
 ```
 
-### The application is accessible at:
-
-```
-http://localhost:3000/
-```
+### The application is accessible at http://localhost:3000/
 
 <hr/>
 <hr/>

@@ -2,6 +2,18 @@ import Config from "../configurationn/Config.js";
 import Evaluator from "./Evaluator.js";
 
 export default class Calculator {
+  static fromExpressionToString(expression) {
+    return expression
+      .map((item) => {
+        if (item["keyType"] == Config.KEY_CLASS.FUNCTION) {
+          return item["content"] + "(";
+        } else {
+          return item["content"];
+        }
+      })
+      .join("");
+  }
+
   constructor() {
     // javascript state
     this.state = {
@@ -74,8 +86,10 @@ export default class Calculator {
       return;
     }
 
-    const oldExpressionString = this.fromExpressionToString(oldExpression);
-    const newExpressionString = this.fromExpressionToString(newExpression);
+    const oldExpressionString =
+      Calculator.fromExpressionToString(oldExpression);
+    const newExpressionString =
+      Calculator.fromExpressionToString(newExpression);
 
     if (oldExpressionString == newExpressionString) {
       return;
@@ -102,7 +116,7 @@ export default class Calculator {
   updateDOM = () => {
     // Calculator
     const { expression, history } = this.state;
-    const expressionString = this.fromExpressionToString(expression);
+    const expressionString = Calculator.fromExpressionToString(expression);
     this.dom.calculatorScreenContent.innerText = expressionString;
 
     // History
@@ -135,17 +149,5 @@ export default class Calculator {
 
       this.dom.historyList.appendChild(historyDomItem);
     }
-  };
-
-  fromExpressionToString = (expression) => {
-    return expression
-      .map((item) => {
-        if (item["keyType"] == Config.KEY_CLASS.FUNCTION) {
-          return item["content"] + "(";
-        } else {
-          return item["content"];
-        }
-      })
-      .join("");
   };
 }

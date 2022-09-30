@@ -167,26 +167,6 @@ export default class Evaluator {
         },
       ];
     } else {
-      console.log(
-        "result",
-        resultValue
-          .toString()
-          .split("")
-          .map((character) => {
-            if (character == ".")
-              return {
-                keyType: Config.KEY_CLASS.DECIMAL_POINT,
-                content: character,
-                id: Config.KEY_CLASS.DECIMAL_POINT,
-              };
-            else {
-              return {
-                keyType: Config.KEY_CLASS.NUMBER,
-                content: character,
-              };
-            }
-          })
-      );
       return resultValue
         .toString()
         .split("")
